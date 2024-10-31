@@ -1,0 +1,12 @@
+- name: Deploy Inception Project
+  hosts: local
+  tasks:
+    - name: Cloner le dépôt Inception
+      git:
+        repo: 'https://github.com/Mathis-CATAL-DELBUT/Inception.git'  # Remplace par le bon lien Git
+        dest: /home/vagrant/inception
+
+    - name: Installer les dépendances
+      command: make
+      args:
+        chdir: /home/vagrant/inception
