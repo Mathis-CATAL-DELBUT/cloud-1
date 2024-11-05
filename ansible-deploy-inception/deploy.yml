@@ -3,7 +3,7 @@
   tasks:
     - name: Cloner le dépôt Inception
       git:
-        repo: 'https://github.com/Mathis-CATAL-DELBUT/Inception.git'  # Remplace par le bon lien Git
+        repo: 'https://github.com/Mathis-CATAL-DELBUT/Inception.git' 
         dest: /home/vagrant/inception
 
     - name: Installer les dépendances
