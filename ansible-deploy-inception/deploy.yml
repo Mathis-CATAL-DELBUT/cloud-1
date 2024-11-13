@@ -1,12 +1,27 @@
-- name: Install Docker on Ubuntu
+- name: Install Docker and prepare environment on Ubuntu
   hosts: all
-  remote_user: mcatal-d
   become: true
   vars:
     arch_mapping:  
       x86_64: amd64
+    new_user: mcatal-d
 
   tasks:
+    - name: Create a new user
+      ansible.builtin.user:
+        name: "{{ new_user }}"
+        state: present
+        groups: docker
+        append: true
+
+    - name: Ensure the new user has a home directory
+      ansible.builtin.file:
+        path: "/home/{{ new_user }}"
+        state: directory
+        owner: "{{ new_user }}"
+        group: "{{ new_user }}"
+        mode: '0755'
+
     - name: Update and upgrade all packages to the latest version
       ansible.builtin.apt:
         update_cache: true
@@ -55,14 +70,14 @@
         - docker-buildx-plugin
         - docker-compose-plugin
 
-    - name: Add Docker group
+    - name: Add Docker group (ensure it's present)
       ansible.builtin.group:
         name: docker
         state: present
 
     - name: Add user to Docker group
       ansible.builtin.user:
-        name: "{{ ansible_user }}"
+        name: "{{ new_user }}"
         groups: docker
         append: true
 
@@ -75,30 +90,33 @@
         - docker.service
         - containerd.service
 
-    - name: Assurer que Docker est actif
-      service:
+    - name: Ensure Docker service is running
+      ansible.builtin.service:
         name: docker
         state: started
         enabled: true
 
-    - name: Installer les dépendances
-      apt:
+    - name: Install dependencies for build tools
+      ansible.builtin.apt:
         name: 
           - make
           - gcc
         state: present
 
-    - name: Cloner le dépôt Inception
-      git:
+    - name: Clone the Inception repository
+      ansible.builtin.git:
         repo: 'https://github.com/Mathis-CATAL-DELBUT/Inception.git'
-        dest: /home/vagrant/inception
+        dest: "/home/{{ new_user }}/inception"
         single_branch: true
         update: yes
         version: cloud
         force: yes
+      become_user: "{{ new_user }}"
+      become: true
 
-    - name: Lancer make avec des privilèges root
-      become: yes
-      command: make
-      args:
-        chdir: /home/vagrant/inception
+    - name: Run make in the Inception directory
+      ansible.builtin.command:
+        cmd: make
+        chdir: "/home/{{ new_user }}/inception"
+      become_user: "{{ new_user }}"
+      become: true
