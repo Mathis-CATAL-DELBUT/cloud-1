@@ -1,0 +1,22 @@
+- name: Install Docker and prepare environment on Ubuntu
+  hosts: all
+  become: true
+  strategy: free 
+  vars:
+    arch_mapping:
+      x86_64: amd64
+    new_user: mcatal-d
+
+  tasks:
+
+    - name: Create a new user
+      include_tasks: tasks/create_user.yml
+
+    - name: Install and configure Docker
+      include_tasks: tasks/install_docker.yml
+
+    - name: Install build dependencies and clone repository
+      include_tasks: tasks/prepare_build.yml
+
+    - name: Run make command
+      include_tasks: tasks/run_make.yml

@@ -1,0 +1,17 @@
+- name: Install dependencies for build tools
+  ansible.builtin.apt:
+    name:
+      - make
+      - gcc
+    state: present
+
+- name: Clone the Inception repository
+  ansible.builtin.git:
+    repo: 'https://github.com/Mathis-CATAL-DELBUT/Inception.git'
+    dest: "/home/{{ new_user }}/inception"
+    single_branch: true
+    update: yes
+    version: cloud
+    force: yes
+  become_user: "{{ new_user }}"
+  become: true

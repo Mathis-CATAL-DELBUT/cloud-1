@@ -1,0 +1,6 @@
+- name: Run make in the Inception directory
+  ansible.builtin.command:
+    cmd: make
+    chdir: "/home/{{ new_user }}/inception"
+  become_user: "{{ new_user }}"
+  become: true
